@@ -1,13 +1,29 @@
-mutation createTask($text: String!) {
-  insert_tasks_one(object: { text: $text }) {
-    id
-    text
-  }
+fragment commonTaskFields on tasks {
+  id
+  text
+  done
 }
 
 query getTasks {
-  tasks {
-    id
-    text
+  tasks(order_by: { updated_at: desc }) {
+    ...commonTaskFields
+  }
+}
+
+mutation createTask($text: String!) {
+  insert_tasks_one(object: { text: $text }) {
+    ...commonTaskFields
+  }
+}
+
+mutation markTaskAsDone($id: Int!) {
+  update_tasks_by_pk(pk_columns: {id: $id}, _set: {done: true}) {
+    ...commonTaskFields
+  }
+}
+
+mutation markTaskAsNotDone($id: Int!) {
+  update_tasks_by_pk(pk_columns: {id: $id}, _set: {done: false}) {
+    ...commonTaskFields
   }
 }

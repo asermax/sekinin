@@ -1,0 +1,5 @@
+schema:
+  - https://sekinin.hasura.app/v1/graphql:
+      headers:
+        x-hasura-admin-secret: ${HASURA_ADMIN_SECRET}
+documents: "./app/**/*.graphql"

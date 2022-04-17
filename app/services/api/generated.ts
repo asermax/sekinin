@@ -16,6 +16,19 @@ export type Scalars = {
   timestamptz: any;
 };
 
+/** Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'. */
+export type Boolean_Comparison_Exp = {
+  _eq?: InputMaybe<Scalars['Boolean']>;
+  _gt?: InputMaybe<Scalars['Boolean']>;
+  _gte?: InputMaybe<Scalars['Boolean']>;
+  _in?: InputMaybe<Array<Scalars['Boolean']>>;
+  _is_null?: InputMaybe<Scalars['Boolean']>;
+  _lt?: InputMaybe<Scalars['Boolean']>;
+  _lte?: InputMaybe<Scalars['Boolean']>;
+  _neq?: InputMaybe<Scalars['Boolean']>;
+  _nin?: InputMaybe<Array<Scalars['Boolean']>>;
+};
+
 /** Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'. */
 export type Int_Comparison_Exp = {
   _eq?: InputMaybe<Scalars['Int']>;
@@ -319,6 +332,7 @@ export type Subscription_RootUsers_By_PkArgs = {
 export type Tasks = {
   __typename?: 'tasks';
   created_at: Scalars['timestamptz'];
+  done: Scalars['Boolean'];
   id: Scalars['Int'];
   text: Scalars['String'];
   updated_at: Scalars['timestamptz'];
@@ -396,6 +410,7 @@ export type Tasks_Bool_Exp = {
   _not?: InputMaybe<Tasks_Bool_Exp>;
   _or?: InputMaybe<Array<Tasks_Bool_Exp>>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  done?: InputMaybe<Boolean_Comparison_Exp>;
   id?: InputMaybe<Int_Comparison_Exp>;
   text?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -417,6 +432,7 @@ export type Tasks_Inc_Input = {
 /** input type for inserting data into table "tasks" */
 export type Tasks_Insert_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']>;
+  done?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['Int']>;
   text?: InputMaybe<Scalars['String']>;
   updated_at?: InputMaybe<Scalars['timestamptz']>;
@@ -480,6 +496,7 @@ export type Tasks_On_Conflict = {
 /** Ordering options when selecting data from "tasks". */
 export type Tasks_Order_By = {
   created_at?: InputMaybe<Order_By>;
+  done?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   text?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -496,6 +513,8 @@ export enum Tasks_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  Done = 'done',
+  /** column name */
   Id = 'id',
   /** column name */
   Text = 'text',
@@ -508,6 +527,7 @@ export enum Tasks_Select_Column {
 /** input type for updating data in table "tasks" */
 export type Tasks_Set_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']>;
+  done?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['Int']>;
   text?: InputMaybe<Scalars['String']>;
   updated_at?: InputMaybe<Scalars['timestamptz']>;
@@ -570,6 +590,8 @@ export type Tasks_Sum_Order_By = {
 export enum Tasks_Update_Column {
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  Done = 'done',
   /** column name */
   Id = 'id',
   /** column name */
@@ -868,40 +890,74 @@ export type Users_Variance_Fields = {
   id?: Maybe<Scalars['Float']>;
 };
 
+export type CommonTaskFieldsFragment = { __typename?: 'tasks', id: number, text: string, done: boolean };
+
+export type GetTasksQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetTasksQuery = { __typename?: 'query_root', tasks: Array<{ __typename?: 'tasks', id: number, text: string, done: boolean }> };
+
 export type CreateTaskMutationVariables = Exact<{
   text: Scalars['String'];
 }>;
 
 
-export type CreateTaskMutation = { __typename?: 'mutation_root', insert_tasks_one?: { __typename?: 'tasks', id: number, text: string } | null };
+export type CreateTaskMutation = { __typename?: 'mutation_root', insert_tasks_one?: { __typename?: 'tasks', id: number, text: string, done: boolean } | null };
 
-export type GetTasksQueryVariables = Exact<{ [key: string]: never; }>;
+export type MarkTaskAsDoneMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
 
 
-export type GetTasksQuery = { __typename?: 'query_root', tasks: Array<{ __typename?: 'tasks', id: number, text: string }> };
+export type MarkTaskAsDoneMutation = { __typename?: 'mutation_root', update_tasks_by_pk?: { __typename?: 'tasks', id: number, text: string, done: boolean } | null };
+
+export type MarkTaskAsNotDoneMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type MarkTaskAsNotDoneMutation = { __typename?: 'mutation_root', update_tasks_by_pk?: { __typename?: 'tasks', id: number, text: string, done: boolean } | null };
 
 export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: number, email: string }> };
 
-
-export const CreateTaskDocument = gql`
-    mutation createTask($text: String!) {
-  insert_tasks_one(object: {text: $text}) {
-    id
-    text
-  }
+export const CommonTaskFieldsFragmentDoc = gql`
+    fragment commonTaskFields on tasks {
+  id
+  text
+  done
 }
     `;
 export const GetTasksDocument = gql`
     query getTasks {
-  tasks {
-    id
-    text
+  tasks(order_by: {updated_at: desc}) {
+    ...commonTaskFields
   }
 }
-    `;
+    ${CommonTaskFieldsFragmentDoc}`;
+export const CreateTaskDocument = gql`
+    mutation createTask($text: String!) {
+  insert_tasks_one(object: {text: $text}) {
+    ...commonTaskFields
+  }
+}
+    ${CommonTaskFieldsFragmentDoc}`;
+export const MarkTaskAsDoneDocument = gql`
+    mutation markTaskAsDone($id: Int!) {
+  update_tasks_by_pk(pk_columns: {id: $id}, _set: {done: true}) {
+    ...commonTaskFields
+  }
+}
+    ${CommonTaskFieldsFragmentDoc}`;
+export const MarkTaskAsNotDoneDocument = gql`
+    mutation markTaskAsNotDone($id: Int!) {
+  update_tasks_by_pk(pk_columns: {id: $id}, _set: {done: false}) {
+    ...commonTaskFields
+  }
+}
+    ${CommonTaskFieldsFragmentDoc}`;
 export const GetUsersDocument = gql`
     query getUsers {
   users {
@@ -918,11 +974,17 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    getTasks(variables?: GetTasksQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTasksQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetTasksQuery>(GetTasksDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getTasks', 'query');
+    },
     createTask(variables: CreateTaskMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateTaskMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateTaskMutation>(CreateTaskDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createTask', 'mutation');
     },
-    getTasks(variables?: GetTasksQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTasksQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetTasksQuery>(GetTasksDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getTasks', 'query');
+    markTaskAsDone(variables: MarkTaskAsDoneMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<MarkTaskAsDoneMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<MarkTaskAsDoneMutation>(MarkTaskAsDoneDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'markTaskAsDone', 'mutation');
+    },
+    markTaskAsNotDone(variables: MarkTaskAsNotDoneMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<MarkTaskAsNotDoneMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<MarkTaskAsNotDoneMutation>(MarkTaskAsNotDoneDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'markTaskAsNotDone', 'mutation');
     },
     getUsers(variables?: GetUsersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUsersQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>(GetUsersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUsers', 'query');

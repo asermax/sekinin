@@ -3,6 +3,7 @@ import { json } from '@remix-run/node';
 import { useLoaderData, useTransition } from '@remix-run/react';
 import { ValidatedForm } from 'remix-validated-form';
 import { FormInput } from '~/components/common';
+import { Task } from '~/components/tasks';
 import { authenticator } from '~/services/auth.server';
 import { createTask, getTasks, taskValidator } from '~/services/tasks';
 
@@ -47,16 +48,16 @@ export default function Index() {
         Tasks
       </h2>
       <ul>
-        {tasks.map(({ id, text }) => (
-          <li key={id}>
-            {text}
-          </li>
-        ))}
         {transition.submission ? (
           <li>
-            {transition.submission.formData.get('text')}
+            <Task text={String(transition.submission.formData.get('text'))} />
           </li>
         ) : null}
+        {tasks.map((task) => (
+          <li key={task.id}>
+            <Task {...task} />
+          </li>
+        ))}
       </ul>
     </div>
   );
