@@ -1,0 +1,41 @@
+{
+  "name": "remix-template-vercel",
+  "private": true,
+  "description": "",
+  "license": "",
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "dev": "remix dev",
+    "gql-gen": "node -r dotenv/config node_modules/.bin/gql-gen"
+  },
+  "dependencies": {
+    "@remix-run/node": "^1.3.5",
+    "@remix-run/react": "^1.3.5",
+    "@remix-run/vercel": "^1.3.5",
+    "@vercel/node": "^1.14.0",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.2.0",
+    "graphql-tag": "^2.12.6",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "remix-auth": "^3.2.1",
+    "remix-auth-auth0": "^1.3.5"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.8",
+    "@graphql-codegen/typescript-graphql-request": "^4.4.5",
+    "@graphql-codegen/typescript-operations": "^2.3.5",
+    "@remix-run/dev": "^1.3.5",
+    "@remix-run/eslint-config": "^1.3.5",
+    "@remix-run/serve": "^1.3.5",
+    "@types/react": "^17.0.24",
+    "@types/react-dom": "^17.0.9",
+    "eslint": "^8.11.0",
+    "typescript": "^4.5.5"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

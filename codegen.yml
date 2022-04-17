@@ -1,0 +1,11 @@
+schema:
+  - https://sekinin.hasura.app/v1/graphql:
+      headers:
+        x-hasura-admin-secret: ${HASURA_ADMIN_SECRET}
+documents: "./app/**/*.graphql"
+generates:
+  ./app/services/api/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
