@@ -1,6 +1,6 @@
 import { Authenticator } from 'remix-auth';
 import { Auth0Strategy } from 'remix-auth-auth0';
-import { api } from './api';
+import { getApi } from './api';
 import { sessionStorage } from './session.server';
 
 export interface User {
@@ -39,6 +39,7 @@ let auth0Strategy = new Auth0Strategy(
   },
   async ({ accessToken }) => {
     console.log(accessToken)
+    const api = await getApi()
     const query = await api.getUsers(undefined, { Authorization: `Bearer ${accessToken}` });
     const user = {
       ...query.users[0],

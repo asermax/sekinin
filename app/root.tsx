@@ -22,6 +22,7 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <h1>Welcome to Sekinin</h1>
         <Outlet />
         <ScrollRestoration />
         <Scripts />

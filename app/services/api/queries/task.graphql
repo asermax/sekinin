@@ -1,0 +1,13 @@
+mutation createTask($text: String!) {
+  insert_tasks_one(object: { text: $text }) {
+    id
+    text
+  }
+}
+
+query getTasks {
+  tasks {
+    id
+    text
+  }
+}

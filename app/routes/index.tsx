@@ -1,32 +1,63 @@
-import type { LoaderFunction } from '@remix-run/node';
-import type { User } from '~/services/auth.server'
-import { Form, useLoaderData } from '@remix-run/react';
+import type { ActionFunction, LoaderFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
+import { useLoaderData, useTransition } from '@remix-run/react';
+import { ValidatedForm } from 'remix-validated-form';
+import { FormInput } from '~/components/common';
 import { authenticator } from '~/services/auth.server';
+import { createTask, getTasks, taskValidator } from '~/services/tasks';
 
-interface LoaderData {
-  user?: User
+type LoaderData = Awaited<ReturnType<typeof getLoaderData>>;
+
+async function getLoaderData(request: Request) {
+  const tasks = await getTasks(request);
+  return { tasks };
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await authenticator.isAuthenticated(request);
+  await authenticator.isAuthenticated(request, { failureRedirect: '/auth/login' });
+  return json<LoaderData>(await getLoaderData(request));
+}
 
-  return { user };
+export const action: ActionFunction = async ({ request }) => {
+  const task = await createTask(request);
+
+  return json(task);
 }
 
 export default function Index() {
-  const { user } : LoaderData = useLoaderData()
+  const { tasks } = useLoaderData<LoaderData>();
+  const transition = useTransition();
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
-      <h1>Welcome to Sekinin</h1>
-      {user?.email != null ? (
-        user.email
-      ) : (
-        <Form action="/auth/auth0" method="post">
-          <button>Login with Auth0</button>
-        </Form>
-      )}
-
+      <ValidatedForm
+        validator={taskValidator}
+        method="post"
+        defaultValues={{
+          text: '',
+        }}
+      >
+        <FormInput
+          name="text"
+          label="Add new task: "
+          clearOnSubmit
+        />
+      </ValidatedForm>
+      <h2>
+        Tasks
+      </h2>
+      <ul>
+        {tasks.map(({ id, text }) => (
+          <li key={id}>
+            {text}
+          </li>
+        ))}
+        {transition.submission ? (
+          <li>
+            {transition.submission.formData.get('text')}
+          </li>
+        ) : null}
+      </ul>
     </div>
   );
 }

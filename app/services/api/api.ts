@@ -1,10 +1,26 @@
-import { GraphQLClient } from "graphql-request";
+import { authenticator } from '../auth.server';
+import type { SdkFunctionWrapper } from './generated';
+
+import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated';
 
-if (process.env.API_URL == null) {
-  throw new Error('Missing API_URL');
-}
+const getApi = async (request?: Request) => {
+  if (process.env.API_URL == null) {
+    throw new Error('Missing API_URL');
+  }
 
-const api = getSdk(new GraphQLClient(process.env.API_URL));
+  let apiWrapper: SdkFunctionWrapper|undefined;
 
-export { api };
+  if (request != null) {
+    const user = await authenticator.isAuthenticated(request);
+
+    if (user != null) {
+      apiWrapper = async (action) => action({ Authorization: `Bearer ${user.accessToken}` });
+
+    }
+  }
+
+  return getSdk(new GraphQLClient(process.env.API_URL), apiWrapper);
+};
+
+export { getApi };
